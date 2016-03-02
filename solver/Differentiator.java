@@ -13,7 +13,6 @@ public class Differentiator
 	
 	public String translate(String input) throws InvalidSymbolException
 	{
-		System.out.println("got to translate");
 		input = input.trim().replaceAll(" +", " "); //remove extra whitespace
 		String output = "";
 		boolean wasDigit = false;
@@ -33,6 +32,7 @@ public class Differentiator
 					}
 					if (!cStack.isEmpty()) //remove corresponding open parenthesis
 						cStack.pop();
+					wasDigit = false;
 				}
 				else if (current == '(')
 				{
@@ -46,6 +46,7 @@ public class Differentiator
 						cStack.push('*');
 					}
 					cStack.push(current); //if last character wasn't a digit, just push '(' to the stack
+					wasDigit = false;
 				}
 				else if (current == '+' || current == '-')
 				{
@@ -83,12 +84,7 @@ public class Differentiator
 					{
 						output += current; 
 						if (i + 1 < input.length())
-							current = input.charAt(++i); 
-						else
-						{
-							i = input.length();
-							break;
-						}
+							current = input.charAt(++i);
 					}
 					output += " ";
 					i--; //index is already on next character; must decrement here so that incrementing outside of the if block will return it to the correct index
@@ -127,10 +123,7 @@ public class Differentiator
 	
 	public Node formTree(String input) throws InvalidSymbolException
 	{
-		System.out.println("got to formTree");
 		input = this.translate(input); //translate input to postfix
-		System.out.println("got past translate");
-		System.out.println(input);
 		int i = 0;
 		
 		while (i < input.length())
@@ -143,7 +136,7 @@ public class Differentiator
 					while (j < input.length() && input.charAt(++j) != ' '); //set j to the index of the next whitespace
 				String temp = input.substring(i, j);
 				nStack.push(new Node(temp)); //push a new operand node to the stack
-				i = j;
+				i = j; //set i to the index of the whitespace
 			}
 			else if (current == 'x')
 			{
@@ -204,7 +197,7 @@ public class Differentiator
 	
 	public Polynomial evaluate(Node n) throws TooComplicatedException
 	{
-		Polynomial output = new Polynomial();
+		Polynomial output = new Polynomial(new Term(0, 0));
 
 		if (n.getData().equals("+"))
 		{
@@ -231,7 +224,7 @@ public class Differentiator
 			else
 			{
 				Polynomial temp = evaluate(n.getLeftChild());
-				
+				temp.divide(evaluate(n.getRightChild()));
 				output.add(temp);
 			}
 		}
@@ -242,7 +235,7 @@ public class Differentiator
 			else
 			{
 				Polynomial temp = evaluate(n.getLeftChild());
-				temp.pow(evaluate(n.getLeftChild()));
+				temp.pow(evaluate(n.getRightChild()));
 				output.add(temp);
 			}
 		}
@@ -252,15 +245,15 @@ public class Differentiator
 		}
 		else
 		{
-			output.add(new Term(Integer.valueOf(n.getData()), 0));
+			output.add(new Term(Double.valueOf(n.getData()), 0));
 		}
+
 		return output;
 	}
 	
 	public Polynomial differentiate(Node n) throws TooComplicatedException
 	{
-		System.out.println("got past formTree");
-		Polynomial output = new Polynomial();
+		Polynomial output = new Polynomial(new Term(0, 0));
 		if (n.getData().equals("+")) //(u + v)' = u' + v'
 		{
 			output.add(differentiate(n.getLeftChild()));
@@ -316,7 +309,7 @@ public class Differentiator
 		{
 			output.add(new Term(0, 0));
 		}
-		System.out.println("got through differentiate");
+		
 		return output;
 	}
 }

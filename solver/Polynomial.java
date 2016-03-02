@@ -77,7 +77,7 @@ public class Polynomial
 		if (first == null)
 		{
 			first = p.getFirst();
-			size++;
+			size = p.getSize();
 		}
 		else
 		{
@@ -110,6 +110,7 @@ public class Polynomial
 
 	public void multiply(Polynomial p)
 	{
+		Polynomial output = new Polynomial();
 		Term current = p.getFirst();
 
 		if (first == null)
@@ -121,7 +122,9 @@ public class Polynomial
 		{
 			while (current != null)
 			{
-				this.multiply(current);
+				Polynomial temp = new Polynomial(this.getFirst());
+				temp.multiply(current);
+				output.add(temp);
 				current = current.getNext();
 			}
 		}
@@ -157,7 +160,6 @@ public class Polynomial
 
 	public String toString() 
 	{
-		System.out.println("got to toString");
 		Term current = first;
 		String output = "";
 		boolean isFirstTerm = true;
@@ -173,28 +175,26 @@ public class Polynomial
 					else
 						output += "- ";
 				}
-				if (current.getExponent() == 0)
+				else if (current.getExponent() == 0)
 					output += Math.abs(current.getCoefficient()) + " ";
 				else if (current.getExponent() == 1)
 					output += Math.abs(current.getCoefficient()) + "x ";
 				else
 					output += Math.abs(current.getCoefficient()) + "x^" + current.getExponent() + " ";
-				
+
 				isFirstTerm = false;
 			}
-			
-			if (current.getNext() != null && current.getNext().getCoefficient() > 0)
-				output += "+ ";
-
-			if (current.getNext() != null)
-				current = current.getNext();
 			else
-				break;
+				output += "0.0 ";
+
+			if (current.getNext() != null && current.getNext().getCoefficient() > 0)
+			{
+				output += "+ ";
+				current = current.getNext();
+			}
 		}
-		System.out.println("got through toString");
-		if (output.equals(""))
-			return "0.0";
-		else
-			return output;
+
+		output = output.substring(0, output.length() - 1); //remove extra whitespace at end of output
+		return output;
 	}
 }

@@ -7,7 +7,11 @@ import javax.mail.internet.*;
 
 public class Solver 
 {
-	public static void send(String to, String from, String user, String pass, String host, String msg) throws MessagingException
+	static String from = "bftabitha@gmail.com";
+	static String user = "bftabitha";
+	static String pass = "Piper100";
+
+	public static void send(String to, String host, String msg) throws MessagingException
 	{
 		Properties props = new Properties();
 		props.put("mail.smtp.auth", "true");
@@ -25,7 +29,7 @@ public class Solver
 		System.out.println("\tSuccessfully sent message \"" + msg + "\" to " + to + "!\n");
 	}
 		
-	public static String[] fetch(String host, String user, String pass) throws IOException, NoSuchProviderException, MessagingException
+	public static String[] fetch(String host) throws IOException, NoSuchProviderException, MessagingException
 	{
 		String[] output = new String[2];
 		
@@ -111,22 +115,22 @@ public class Solver
 		String[] output = new String[2];
 		while(true)
 		{
-			output = fetch("pop.gmail.com", "bftabitha", "Piper100"); //change user, password
+			output = fetch("pop.gmail.com"); //change user, password
 			if (output[0] != null)
 			{
 				Differentiator d = new Differentiator(output[1].length()*2);
 				try
 				{
 					String msg = d.differentiate(d.formTree(output[1])).toString();
-					send(output[0], "bftabitha@gmail.com", "bftabitha", "Piper100", "smtp.gmail.com", msg); //change email, user, password
+					send(output[0], "smtp.gmail.com", msg); //change email, user, password
 				}
 				catch (InvalidSymbolException e)
 				{
-					send(output[0], "bftabitha@gmail.com", "bftabitha", "Piper100", "smtp.gmail.com", e.getMessage()); //change email, user, password
+					send(output[0], "smtp.gmail.com", e.getMessage()); //change email, user, password
 				}
 				catch (TooComplicatedException e)
 				{
-					send(output[0], "bftabitha@gmail.com", "bftabitha@gmail.com", "Piper100", "smtp.gmail.com", e.getMessage()); //change email, user, password
+					send(output[0], "smtp.gmail.com", e.getMessage()); //change email, user, password
 				}
 			}
 		}
