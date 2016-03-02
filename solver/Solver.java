@@ -7,9 +7,9 @@ import javax.mail.internet.*;
 
 public class Solver 
 {
-	static String from = "bftabitha@gmail.com";
-	static String user = "bftabitha";
-	static String pass = "Piper100";
+	static String from = "*****"; //change 'from' to your email address (e.g. "johndoe@gmail.com")
+	static String user = "*****"; //change 'user' to your email account name (e.g. "johndoe")
+	static String pass = "*****"; //change 'pass' to your email password (e.g. "petname345")
 
 	public static void send(String to, String host, String msg) throws MessagingException
 	{
