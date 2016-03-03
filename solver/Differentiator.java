@@ -13,10 +13,13 @@ public class Differentiator
 	
 	public String translate(String input) throws InvalidSymbolException
 	{
+		System.out.println("translate: " + input);
 		input = input.trim().replaceAll(" +", " "); //remove extra whitespace
 		String output = "";
 		boolean wasDigit = false;
 		int i = 0;
+
+		String test = "";
 		
 		while (i < input.length())
 		{
@@ -30,8 +33,7 @@ public class Differentiator
 						output += cStack.pop();
 						output += " ";
 					}
-					if (!cStack.isEmpty()) //remove corresponding open parenthesis
-						cStack.pop();
+					cStack.pop();
 					wasDigit = false;
 				}
 				else if (current == '(')
@@ -82,12 +84,16 @@ public class Differentiator
 				{
 					while (current <= '9' && current >= '0' || current == '.') //continue pushing digits to output until end of number (whitespace) is reached
 					{
-						output += current; 
+						output += current;
 						if (i + 1 < input.length())
-							current = input.charAt(++i);
+						{
+							i++;
+							current = input.charAt(i);
+						}
+						else
+							break;
 					}
 					output += " ";
-					i--; //index is already on next character; must decrement here so that incrementing outside of the if block will return it to the correct index
 					wasDigit = true;
 				}
 				else if (current == 'x') 
@@ -116,7 +122,6 @@ public class Differentiator
 			output += cStack.pop();
 			output += " ";
 		}
-		
 		output = output.substring(0, output.length() - 1); //remove last character of the output, which will be a space
 		return output;
 	}
@@ -125,6 +130,7 @@ public class Differentiator
 	{
 		input = this.translate(input); //translate input to postfix
 		int i = 0;
+		System.out.println("formTree: " + input);
 		
 		while (i < input.length())
 		{
@@ -197,6 +203,7 @@ public class Differentiator
 	
 	public Polynomial evaluate(Node n) throws TooComplicatedException
 	{
+		System.out.println("evaluate: " + n.getData());
 		Polynomial output = new Polynomial(new Term(0, 0));
 
 		if (n.getData().equals("+"))
@@ -253,6 +260,7 @@ public class Differentiator
 	
 	public Polynomial differentiate(Node n) throws TooComplicatedException
 	{
+		System.out.println("differentiate: " + n.getData());
 		Polynomial output = new Polynomial(new Term(0, 0));
 		if (n.getData().equals("+")) //(u + v)' = u' + v'
 		{
@@ -277,7 +285,7 @@ public class Differentiator
 		}
 		else if (n.getData().equals("/")) //same as multiplying, but with 1/c instead of c
 		{
-			if (isComplicatedFunction(n))
+			if (isComplicatedFunction(n.getRightChild()))
 				throw new TooComplicatedException("Sorry, I can't differentiate rational functions!");
 			else
 			{
@@ -291,7 +299,7 @@ public class Differentiator
 		}
 		else if (n.getData().equals("^")) //(u^c)' = cu^(c-1)
 		{
-			if (isComplicatedFunction(n))
+			if (isComplicatedFunction(n.getRightChild()))
 				throw new TooComplicatedException("Sorry, I can't differentiate exponential functions!");
 			else
 			{

@@ -132,8 +132,8 @@ public class Polynomial
 
 	public void divide(Polynomial t) throws TooComplicatedException
 	{
-		if (t.getSize() != 1)
-			throw new TooComplicatedException("This function is too complicated for me!");
+		//if (t.getSize() != 1)
+			//throw new TooComplicatedException("This function is too complicated for me!");
 		Term current = first;
 
 		if (first == null)
@@ -150,9 +150,9 @@ public class Polynomial
 
 	public void pow(Polynomial t) throws TooComplicatedException
 	{
-		if (size > 1 || t.getSize() != 1)
-			throw new TooComplicatedException("This function is too complicated for me!");
-		else if (size == 0)
+		//if (size > 1 || t.getSize() != 1)
+			//throw new TooComplicatedException("This function is too complicated for me!");
+		if (size == 0)
 			first = new Term(0, 0);
 		else
 			first.pow(t.getFirst().getCoefficient());
@@ -192,8 +192,12 @@ public class Polynomial
 				output += "+ ";
 				current = current.getNext();
 			}
+			else
+				break;
 		}
 
+		if (output.startsWith("0.0 + "))
+			output = output.substring(6, output.length());
 		output = output.substring(0, output.length() - 1); //remove extra whitespace at end of output
 		return output;
 	}
