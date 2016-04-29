@@ -110,7 +110,7 @@ public class Solver
 		return null;
 	}
 	
-	public static void main(String[] args) throws NoSuchProviderException, IOException, MessagingException
+	public static void main(String[] args) throws NoSuchProviderException, IOException, MessagingException, InvalidSymbolException, TooComplicatedException
 	{
 		String[] output = new String[2];
 		while(true)
@@ -121,7 +121,7 @@ public class Solver
 				Differentiator d = new Differentiator(output[1].length()*2);
 				try
 				{
-					String msg = d.differentiate(d.formTree(output[1])).toString();
+					String msg = d.differentiate(d.evaluate(d.formTree(output[1]))).toString();
 					send(output[0], "smtp.gmail.com", msg); //change email, user, password
 				}
 				catch (InvalidSymbolException e)

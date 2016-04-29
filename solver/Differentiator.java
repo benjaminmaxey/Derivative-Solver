@@ -13,108 +13,115 @@ public class Differentiator
 	
 	public String translate(String input) throws InvalidSymbolException
 	{
-		System.out.println("translate: " + input);
 		input = input.trim().replaceAll(" +", " "); //remove extra whitespace
 		String output = "";
 		boolean wasDigit = false;
 		int i = 0;
-
-		String test = "";
 		
 		while (i < input.length())
 		{
 			char current = input.charAt(i);
-			if (current != ' ') //if current is a space, move to next character
+			
+			if (current == '(')
 			{
-				if (current == ')') //if current is a close parenthesis, pop operators from stack until open parenthesis is reached
+				if (wasDigit)
 				{
-					while (!cStack.isEmpty() && cStack.peek() != '(')
+					while (!cStack.isEmpty() && (cStack.peek() == '*' || cStack.peek() == '/' || cStack.peek() == '^'))
 					{
 						output += cStack.pop();
 						output += " ";
 					}
-					cStack.pop();
-					wasDigit = false;
+					cStack.push('*');
 				}
-				else if (current == '(')
-				{
-					if (wasDigit) //if last character was a digit, supply an extra '*' before dealing with '('
-					{
-						while (!cStack.isEmpty() && (cStack.peek() == '*' || cStack.peek() == '/' || cStack.peek() == '^'))
-						{
-							output += cStack.pop();
-							output += " ";
-						}
-						cStack.push('*');
-					}
-					cStack.push(current); //if last character wasn't a digit, just push '(' to the stack
-					wasDigit = false;
-				}
-				else if (current == '+' || current == '-')
-				{
-					while (!cStack.isEmpty() && (cStack.peek() == '+' || cStack.peek() == '-' || cStack.peek() == '*' || cStack.peek() == '/' || cStack.peek() == '^')) //operators with a greater than or equal precedence can be popped from stack
-					{
-						output += cStack.pop();
-						output += " ";
-					}
-					cStack.push(current);
-					wasDigit = false;
-				}
-				else if (current == '*' || current == '/')
-				{
-					while (!cStack.isEmpty() && (cStack.peek() == '*' || cStack.peek() == '/' || cStack.peek() == '^')) //operators with a greater than or equal precedence can be popped from stack
-					{
-						output += cStack.pop();
-						output += " ";
-					}
-					cStack.push(current);
-					wasDigit = false;
-				}
-				else if (current == '^')
-				{
-					while (!cStack.isEmpty() && cStack.peek() == '^') //operator with equal precedence can be popped from stack
-					{
-						output += cStack.pop();
-						output += " ";
-					}
-					cStack.push(current);
-					wasDigit = false;
-				}
-				else if (current <= '9' && current >= '0' || current == '.') //push operands to output automatically
-				{
-					while (current <= '9' && current >= '0' || current == '.') //continue pushing digits to output until end of number (whitespace) is reached
-					{
-						output += current;
-						if (i + 1 < input.length())
-						{
-							i++;
-							current = input.charAt(i);
-						}
-						else
-							break;
-					}
-					output += " ";
-					wasDigit = true;
-				}
-				else if (current == 'x') 
-				{
-					if (wasDigit) //if last character was a digit, supply an extra '*' before dealing with '('
-					{
-						while (!cStack.isEmpty() && (cStack.peek() == '*' || cStack.peek() == '/' || cStack.peek() == '^'))
-						{
-							output += cStack.pop();
-							output += " ";
-						}
-						cStack.push('*');
-						wasDigit = false;
-					}
-					output += 'x';
-					output += " ";
-				}
-				else 
-					throw new InvalidSymbolException("Invalid symbol: " + current);
+				cStack.push(current);
+				wasDigit = false;
 			}
-			i++; //move to next character
+			else if (current == ')')
+			{
+				while (!cStack.isEmpty() && cStack.peek() != '(')
+				{
+					output += cStack.pop();
+					output += " ";
+				}
+				cStack.pop();
+				wasDigit = true;
+			}
+			else if (current == '+')
+			{
+				while (!cStack.isEmpty() && (cStack.peek() == '+' || cStack.peek() == '-' || cStack.peek() == '*' || cStack.peek() == '/' || cStack.peek() == '^'))
+				{
+					output += cStack.pop();
+					output += " ";
+				}
+				cStack.push(current);
+				wasDigit = false;
+			}
+			else if (current == '-')
+			{
+				if (!wasDigit) //if '-' is meant as a negative sign instead of subtraction, add a 0 before '-'
+				{
+					output += "0 ";
+				}
+				while (!cStack.isEmpty() && (cStack.peek() == '+' || cStack.peek() == '-' || cStack.peek() == '*' || cStack.peek() == '/' || cStack.peek() == '^'))
+				{
+					output += cStack.pop();
+					output += " ";
+				}
+				cStack.push(current);
+				wasDigit = false;
+			}
+			else if (current == '*' || current == '/')
+			{
+				while (!cStack.isEmpty() && (cStack.peek() == '*' || cStack.peek() == '/' || cStack.peek() == '^'))
+				{
+					output += cStack.pop();
+					output += " ";
+				}
+				cStack.push(current);
+				wasDigit = false;
+			}
+			else if (current == '^')
+			{
+				while (!cStack.isEmpty() && cStack.peek() == '^')
+				{
+					output += cStack.pop();
+					output += " ";
+				}
+				cStack.push(current);
+				wasDigit = false;
+			}
+			else if ((current >= '0' && current <= '9') || current == '.')
+			{
+				int j = i;
+				while (j + 1< input.length() && ((input.charAt(j + 1) >= '0' && input.charAt(j + 1) <= '9') || input.charAt(j + 1) == '.'))
+				{
+					output += input.charAt(j++);
+				}
+				output += input.charAt(j);
+				output += " ";
+				i = j;
+				wasDigit = true;
+			}
+			else if (current == 'x')
+			{
+				if (wasDigit)
+				{
+					while (!cStack.isEmpty() && (cStack.peek() == '*' || cStack.peek() == '/' || cStack.peek() == '^'))
+					{
+						output += cStack.pop();
+						output += " ";
+					}
+					cStack.push('*');
+				}
+				output += current;
+				output += " ";
+				wasDigit = true;
+			}
+			else if (current == ' ') {} //do nothing if space
+			else
+				throw new InvalidSymbolException("Invalid symbol: " + current);
+
+			i++;
 		}
 		
 		while (!cStack.isEmpty()) //pop whatever is left on the stack
@@ -122,20 +129,19 @@ public class Differentiator
 			output += cStack.pop();
 			output += " ";
 		}
-		output = output.substring(0, output.length() - 1); //remove last character of the output, which will be a space
-		return output;
+
+		return output.substring(0, output.length() -1); //remove last character of the output, which will be a space
 	}
 	
 	public Node formTree(String input) throws InvalidSymbolException
 	{
 		input = this.translate(input); //translate input to postfix
 		int i = 0;
-		System.out.println("formTree: " + input);
 		
 		while (i < input.length())
 		{
 			char current = input.charAt(i);
-			if (current <= '9' && current >= '0' || current == '.')
+			if (current >= '0' && current <= '9' || current == '.')
 			{
 				int j = i;
 				if (input.length() > 1)
@@ -189,6 +195,17 @@ public class Differentiator
 		return nStack.pop(); //there should be only one node left on the stack 
 	}
 
+	public String printTree(Node n)
+	{
+		String output = ""; //for debugging only
+		output += n.getData() + " ";
+		if (n.getLeftChild() != null)
+			output += "L: " + printTree(n.getLeftChild());
+		if (n.getRightChild() != null)
+			output += "R: " + printTree(n.getRightChild());
+		return output;
+	}
+
 	public boolean isComplicatedFunction(Node n)
 	{
 		boolean flag = false;
@@ -203,13 +220,14 @@ public class Differentiator
 	
 	public Polynomial evaluate(Node n) throws TooComplicatedException
 	{
-		System.out.println("evaluate: " + n.getData());
-		Polynomial output = new Polynomial(new Term(0, 0));
+		Polynomial output = new Polynomial();
 
 		if (n.getData().equals("+"))
 		{
-			output.add(evaluate(n.getLeftChild()));
-			output.add(evaluate(n.getRightChild()));
+			Polynomial temp = evaluate(n.getLeftChild());
+			Polynomial temp2 = evaluate(n.getRightChild());
+			output.add(temp);
+			output.add(temp2);
 		}
 		else if (n.getData().equals("-"))
 		{
@@ -258,9 +276,9 @@ public class Differentiator
 		return output;
 	}
 	
-	public Polynomial differentiate(Node n) throws TooComplicatedException
+	public Polynomial differentiate(Polynomial p) throws TooComplicatedException
 	{
-		System.out.println("differentiate: " + n.getData());
+		/*System.out.println("Differentiating: " + n.getData());
 		Polynomial output = new Polynomial(new Term(0, 0));
 		if (n.getData().equals("+")) //(u + v)' = u' + v'
 		{
@@ -280,7 +298,7 @@ public class Differentiator
 			temp1.multiply(evaluate(n.getRightChild()));
 			Polynomial temp2 = differentiate(n.getRightChild());
 			temp2.multiply(evaluate(n.getLeftChild()));
-			output.add(temp1); 
+			output.add(temp1);
 			output.add(temp2);
 		}
 		else if (n.getData().equals("/")) //same as multiplying, but with 1/c instead of c
@@ -318,6 +336,19 @@ public class Differentiator
 			output.add(new Term(0, 0));
 		}
 		
+		System.out.println(output);
+		return output;*/
+		Polynomial output = new Polynomial();
+		Term current = p.getFirst();
+
+		while (current != null)
+		{
+			double coefficient = current.getCoefficient() * current.getExponent();
+			double exponent = current.getExponent() - 1;
+			output.add(new Term(coefficient, exponent));
+			current = current.getNext();
+		}
+
 		return output;
 	}
 }

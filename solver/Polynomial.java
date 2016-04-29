@@ -3,43 +3,34 @@ package solver;
 public class Polynomial
 {
 	private Term first;
-	private int size;
 	
 	public Polynomial()
 	{
 		first = null;
-		size = 0;
 	}
 	
 	public Polynomial(Term t)
 	{
 		first = t;
-		size = 1;
-	}
-
-	public int getSize()
-	{
-		return size;
 	}
 	
 	public Term getFirst()
 	{
 		return first;
 	}
-	
+
 	public void add(Term t)
 	{
 		if (first == null)
 		{
 			first = t;
-			size++;
 			return;
 		}
 		
 		Term current = first;
 		Term previous = first;
 		
-		while (current != null && t.getExponent() > current.getExponent()) //loop until current is a greater order than t; polynomial will automatically be in ascending order
+		while (current != null && t.getExponent() >= current.getExponent()) //loop until current is a greater order than t; polynomial will automatically be in ascending order
 		{
 			previous = current;
 			current = current.getNext();
@@ -53,40 +44,44 @@ public class Polynomial
 		{
 			if (current == null) //if loop reached end of polynomial, add t to the end of the polynomial
 			{
-				previous.setNext(t);
+				Term temp = new Term(t.getCoefficient(), t.getExponent());
+				previous.setNext(temp);
 			}
 			else if (current == first) //if loop body never executed, first is greater order than t; set t as first and t.next as the old first
 			{
 				Term temp = first;
-				first = t;
+				first = new Term(t.getCoefficient(), t.getExponent());
 				first.setNext(temp);
 			}
 			else //insert t between previous and current
 			{
-				previous.setNext(t);
-				t.setNext(current);
+				Term temp = new Term(t.getCoefficient(), t.getExponent());
+				previous.setNext(temp);
+				temp.setNext(current);
 			}
-			size++;
 		}
 	}
 	
 	public void add(Polynomial p)
 	{
-		Term current = p.getFirst();
-		
-		if (first == null)
+		Term newCurrent = p.getFirst();
+		Term oldCurrent = first;
+		Polynomial output = new Polynomial();
+
+		while (newCurrent != null)
 		{
-			first = p.getFirst();
-			size = p.getSize();
+			Term temp = new Term(newCurrent.getCoefficient(), newCurrent.getExponent());
+			output.add(temp);
+			newCurrent = newCurrent.getNext();
 		}
-		else
+		while (oldCurrent != null)
 		{
-			while (current != null)
-			{
-				this.add(current);
-				current = current.getNext();
-			}
+			Term temp = new Term(oldCurrent.getCoefficient(), oldCurrent.getExponent());
+			output.add(temp);
+			oldCurrent = oldCurrent.getNext();
 		}
+
+		first = output.getFirst(); //set the output as the polynomial itself
 	}
 	
 	public void multiply(Term t)
@@ -96,7 +91,6 @@ public class Polynomial
 		if (first == null)
 		{
 			first = new Term(0, 0);
-			size++;
 		}
 		else
 		{
@@ -110,30 +104,28 @@ public class Polynomial
 
 	public void multiply(Polynomial p)
 	{
+		Term newCurrent = p.getFirst();
+		Term oldCurrent = first;
 		Polynomial output = new Polynomial();
-		Term current = p.getFirst();
 
-		if (first == null)
+		while (newCurrent != null)
 		{
-			first = p.getFirst();
-			size++;
-		}
-		else
-		{
-			while (current != null)
+			oldCurrent = first;
+			while (oldCurrent != null)
 			{
-				Polynomial temp = new Polynomial(this.getFirst());
-				temp.multiply(current);
+				Term temp = new Term(oldCurrent.getCoefficient(), oldCurrent.getExponent());
+				temp.multiply(newCurrent);
 				output.add(temp);
-				current = current.getNext();
+				oldCurrent = oldCurrent.getNext();
 			}
+			newCurrent = newCurrent.getNext();
 		}
+
+		first = output.getFirst(); //set the output as the polynomial itself
 	}
 
 	public void divide(Polynomial t) throws TooComplicatedException
 	{
-		//if (t.getSize() != 1)
-			//throw new TooComplicatedException("This function is too complicated for me!");
 		Term current = first;
 
 		if (first == null)
@@ -150,12 +142,7 @@ public class Polynomial
 
 	public void pow(Polynomial t) throws TooComplicatedException
 	{
-		//if (size > 1 || t.getSize() != 1)
-			//throw new TooComplicatedException("This function is too complicated for me!");
-		if (size == 0)
-			first = new Term(0, 0);
-		else
-			first.pow(t.getFirst().getCoefficient());
+		first.pow(t.getFirst().getCoefficient());
 	}
 
 	public String toString() 
@@ -168,32 +155,34 @@ public class Polynomial
 		{
 			if (current.getCoefficient() != 0)
 			{
-				if (current.getCoefficient() < 0)
+				if (current.getCoefficient() < 0 && isFirstTerm)
 				{
-					if (isFirstTerm)
-						output += "-";
-					else
-						output += "- ";
+					output += "-";
 				}
-				else if (current.getExponent() == 0)
+				if (current.getExponent() == 0)
 					output += Math.abs(current.getCoefficient()) + " ";
 				else if (current.getExponent() == 1)
 					output += Math.abs(current.getCoefficient()) + "x ";
 				else
 					output += Math.abs(current.getCoefficient()) + "x^" + current.getExponent() + " ";
-
-				isFirstTerm = false;
 			}
 			else
 				output += "0.0 ";
 
-			if (current.getNext() != null && current.getNext().getCoefficient() > 0)
+			if (current.getNext() != null && current.getNext().getCoefficient() >= 0)
 			{
 				output += "+ ";
 				current = current.getNext();
 			}
+			else if (current.getNext() != null && current.getNext().getCoefficient() < 0)
+			{
+				output += "- ";
+				current = current.getNext();
+			}
 			else
 				break;
+
+			isFirstTerm = false;
 		}
 
 		if (output.startsWith("0.0 + "))
