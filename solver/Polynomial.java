@@ -1,5 +1,8 @@
 package solver;
 
+import java.text.DecimalFormat;
+import java.math.RoundingMode;
+
 public class Polynomial
 {
 	private Term first;
@@ -149,44 +152,52 @@ public class Polynomial
 	{
 		Term current = first;
 		String output = "";
-		boolean isFirstTerm = true;
+
+		DecimalFormat df = new DecimalFormat("#.###");
+		df.setRoundingMode(RoundingMode.HALF_UP);
 		
 		while (current != null)
 		{
 			if (current.getCoefficient() != 0)
 			{
-				if (current.getCoefficient() < 0 && isFirstTerm)
-				{
+				if (output.length() == 0 && current.getCoefficient() < 0)
 					output += "-";
-				}
-				if (current.getExponent() == 0)
-					output += Math.abs(current.getCoefficient()) + " ";
-				else if (current.getExponent() == 1)
-					output += Math.abs(current.getCoefficient()) + "x ";
-				else
-					output += Math.abs(current.getCoefficient()) + "x^" + current.getExponent() + " ";
-			}
-			else
-				output += "0.0 ";
 
-			if (current.getNext() != null && current.getNext().getCoefficient() >= 0)
-			{
-				output += "+ ";
-				current = current.getNext();
+				if (current.getExponent() == 0)
+				{
+					double coeff = Math.abs(current.getCoefficient());
+					output += df.format(coeff) + " ";
+				}
+				else if (current.getExponent() == 1)
+				{
+					double coeff = Math.abs(current.getCoefficient());
+					output += df.format(coeff) + "x ";
+				}
+				else
+				{
+					double coeff = Math.abs(current.getCoefficient());
+					output += df.format(coeff) + "x^" + df.format(current.getExponent()) + " ";
+				}
+
+				if (current.getNext() != null && current.getNext().getCoefficient() >= 0)
+					output += "+ ";
+				else if (current.getNext() != null && current.getNext().getCoefficient() < 0)
+					output += "- ";
 			}
-			else if (current.getNext() != null && current.getNext().getCoefficient() < 0)
-			{
-				output += "- ";
+
+			if (current.getNext() != null)
 				current = current.getNext();
-			}
 			else
 				break;
-
-			isFirstTerm = false;
 		}
 
 		if (output.startsWith("0.0 + "))
 			output = output.substring(6, output.length());
+		if (output.startsWith("0.0 - "))
+		{
+			String temp = output.substring(6, output.length());
+			output = "-" + temp;
+		}
 		output = output.substring(0, output.length() - 1); //remove extra whitespace at end of output
 		return output;
 	}

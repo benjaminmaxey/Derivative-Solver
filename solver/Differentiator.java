@@ -278,66 +278,7 @@ public class Differentiator
 	
 	public Polynomial differentiate(Polynomial p) throws TooComplicatedException
 	{
-		/*System.out.println("Differentiating: " + n.getData());
-		Polynomial output = new Polynomial(new Term(0, 0));
-		if (n.getData().equals("+")) //(u + v)' = u' + v'
-		{
-			output.add(differentiate(n.getLeftChild()));
-			output.add(differentiate(n.getRightChild()));
-		}
-		else if (n.getData().equals("-")) //(u - v)' = u' - v'
-		{
-			output.add(differentiate(n.getLeftChild()));
-			Polynomial temp = differentiate(n.getRightChild());
-			temp.multiply(new Term(-1, 0));
-			output.add(temp);
-		}
-		else if (n.getData().equals("*")) //(uv)' = u'v + uv'
-		{
-			Polynomial temp1 = differentiate(n.getLeftChild());
-			temp1.multiply(evaluate(n.getRightChild()));
-			Polynomial temp2 = differentiate(n.getRightChild());
-			temp2.multiply(evaluate(n.getLeftChild()));
-			output.add(temp1);
-			output.add(temp2);
-		}
-		else if (n.getData().equals("/")) //same as multiplying, but with 1/c instead of c
-		{
-			if (isComplicatedFunction(n.getRightChild()))
-				throw new TooComplicatedException("Sorry, I can't differentiate rational functions!");
-			else
-			{
-				Polynomial temp1 = differentiate(n.getLeftChild());
-				temp1.divide(evaluate(n.getRightChild()));
-				Polynomial temp2 = differentiate(n.getRightChild());
-				temp2.divide(evaluate(n.getLeftChild()));
-				output.add(temp1);
-				output.add(temp2);
-			}
-		}
-		else if (n.getData().equals("^")) //(u^c)' = cu^(c-1)
-		{
-			if (isComplicatedFunction(n.getRightChild()))
-				throw new TooComplicatedException("Sorry, I can't differentiate exponential functions!");
-			else
-			{
-				Polynomial temp = evaluate(n.getLeftChild());
-				double coefficient = evaluate(n.getRightChild()).getFirst().getCoefficient();
-				double exponent = coefficient - 1;
-				output.add(new Term(coefficient, exponent));
-			}
-		}
-		else if (n.getData().equals("x")) //d/dx(x) = 1
-		{
-			output.add(new Term(1, 0));
-		}
-		else //d/dx(c) = 0
-		{
-			output.add(new Term(0, 0));
-		}
 		
-		System.out.println(output);
-		return output;*/
 		Polynomial output = new Polynomial();
 		Term current = p.getFirst();
 

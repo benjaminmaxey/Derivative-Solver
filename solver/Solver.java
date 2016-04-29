@@ -7,9 +7,9 @@ import javax.mail.internet.*;
 
 public class Solver 
 {
-	static String from = "*****"; //change 'from' to your email address (e.g. "johndoe@gmail.com")
-	static String user = "*****"; //change 'user' to your email account name (e.g. "johndoe")
-	static String pass = "*****"; //change 'pass' to your email password (e.g. "petname345")
+	static String from = "bftabitha@gmail.com"; //change 'from' to your email address (e.g. "johndoe@gmail.com")
+	static String user = "bftabitha"; //change 'user' to your email account name (e.g. "johndoe")
+	static String pass = "Piper100"; //change 'pass' to your email password (e.g. "petname345")
 
 	public static void send(String to, String host, String msg) throws MessagingException
 	{
@@ -131,6 +131,10 @@ public class Solver
 				catch (TooComplicatedException e)
 				{
 					send(output[0], "smtp.gmail.com", e.getMessage()); //change email, user, password
+				}
+				catch (Exception e)
+				{
+					send(output[0], "smtp.gmail.com", "I can't differentiate that.");
 				}
 			}
 		}
